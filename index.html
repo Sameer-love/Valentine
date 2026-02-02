@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>One Honest Question</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="emoji-background" id="emojiBackground"></div>
+  <div class="container" id="main">
+    <h1>Hey…</h1>
+    <p class="message">
+        <span id="typingText"></span><span class="cursor">|</span>
+      </p>
+      
+
+    <p class="question">
+      Will you be my Valentine?
+    </p>
+
+    <div class="buttons">
+      <button class="yes" onclick="showYes()">Yes 💖</button>
+      <button class="no" onclick="showNo()">No 🤍</button>
+    </div>
+  </div>
+
+  <div class="container hidden" id="yesScreen">
+    <h1>💖</h1>
+    <p class="response">
+      Thank you for choosing us again.  
+      I promise respect, patience, and honesty—always.
+    </p>
+  </div>
+
+  <div class="container hidden" id="noScreen">
+    <h1>🤍</h1>
+    <p class="response">
+      Thank you for being honest.  
+      I truly wish you peace, happiness, and love—always.
+    </p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
