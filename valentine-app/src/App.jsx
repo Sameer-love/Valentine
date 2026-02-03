@@ -1,74 +1,42 @@
-import { useEffect, useState } from "react";
-import "./style.css";
+import { useState } from "react";
+import BubbleLayer from "./components/BubbleLayer";
+import HeartBubble from "./components/HeartBubble";
+import SlidePage from "./components/SlidePage";
+import ValentineQuestion from "./components/ValentineQuestion";
+import "./App.css";
 
 export default function App() {
-  const text = `This isn’t pressure.
-This isn’t expectation.
-Just one honest question from my heart.`;
-
-  const [typedText, setTypedText] = useState("");
-  const [screen, setScreen] = useState("main");
-
-  useEffect(() => {
-    let i = 0;
-    const interval = setInterval(() => {
-      setTypedText((prev) => prev + text.charAt(i));
-      i++;
-      if (i >= text.length) clearInterval(interval);
-    }, 50);
-
-    return () => clearInterval(interval);
-  }, []);
+  const [step, setStep] = useState(1);
+  const [answer, setAnswer] = useState(null);
 
   return (
-    <>
-      <div className="emoji-background">
-        {Array.from({ length: 30 }).map((_, i) => (
-          <span key={i} className="emoji">💖</span>
-        ))}
-      </div>
+    <div className={`app ${step >= 2 ? "bg-after" : "bg-before"}`}>
+      <BubbleLayer />
 
-      {screen === "main" && (
-        <div className="container">
-          <h1>Hey…</h1>
-          <p className="message">
-            {typedText.split("\n").map((line, i) => (
-              <span key={i}>{line}<br /></span>
-            ))}
-          </p>
+      <div className="center-content">
+        {step === 1 && <HeartBubble onNext={() => setStep(2)} />}
 
-          <p className="question">Will you be my Valentine?</p>
+        {step === 2 && <SlidePage onNext={() => setStep(3)} />}
 
-          <div className="buttons">
-            <button className="yes" onClick={() => setScreen("yes")}>
-              Yes 💖
-            </button>
-            <button className="no" onClick={() => setScreen("no")}>
-              No 🤍
-            </button>
+        {step === 3 && (
+          <ValentineQuestion
+            onAnswer={(res) => {
+              setAnswer(res);
+              setStep(4);
+            }}
+          />
+        )}
+
+        {step === 4 && (
+          <div className="after-text">
+            {answer === "yes" ? (
+              <h1>You made my heart smile 💖</h1>
+            ) : (
+              <h1>It’s okay… Thank you for being honest 🤍</h1>
+            )}
           </div>
-        </div>
-      )}
-
-      {screen === "yes" && (
-        <div className="container">
-          <h1>💖</h1>
-          <p className="response">
-            Thank you for choosing us again.  
-            I promise respect, patience, and honesty—always.
-          </p>
-        </div>
-      )}
-
-      {screen === "no" && (
-        <div className="container">
-          <h1>🤍</h1>
-          <p className="response">
-            Thank you for being honest.  
-            I truly wish you peace and happiness.
-          </p>
-        </div>
-      )}
-    </>
+        )}
+      </div>
+    </div>
   );
 }
