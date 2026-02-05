@@ -7,8 +7,9 @@ const videos = [
   { src: "/videos/v4.mp4", text: "And somehow… you stayed with me." },
   {
     src: "/videos/v5.mp4",
-    text: "Before I ask you anything… I just want you to know — \n this comes from a very honest place.",
-    final: "Will you be my\n Valentine?",
+    text:
+      "Before I ask you anything… I just want you to know —\nthis comes from a very honest place.",
+    final: "Will you be my \nValentine?",
   },
 ];
 
@@ -19,32 +20,31 @@ export default function VideoSequence({ onFinish }) {
   const [index, setIndex] = useState(0);
   const [visibleWords, setVisibleWords] = useState(0);
   const [showBackground, setShowBackground] = useState(false);
-  const [showFinalQuestion, setShowFinalQuestion] = useState(false); // ⭐ NEW
+  const [showFinalQuestion, setShowFinalQuestion] = useState(false);
+  const [showExplanation, setShowExplanation] = useState(false);
+  const [showBye, setShowBye] = useState(false);
 
   const isLast = index === videos.length - 1;
-  const currentText = showFinalQuestion
+
+  const explanationText =
+    "Matlab bas itna hi… I never knew how to say this without my voice shaking. So I chose silence, screens, and a little courage. No expectations. No pressure. Just something I needed you to know.";
+
+  const currentText = showExplanation
+    ? explanationText
+    : showFinalQuestion
     ? videos[index].final
     : videos[index].text;
 
   const words = currentText.split(" ");
 
-  /* 🎵 background music */
-  useEffect(() => {
-    const music = musicRef.current;
-    if (!music) return;
-
-    music.volume = 0.12;
-    music.play().catch(() => {});
-  }, []);
-
-  /* 🎬 video handling */
+  /* 🎬 Video handling */
   useEffect(() => {
     if (showBackground) return;
 
     const video = videoRef.current;
     if (!video) return;
 
-    video.muted = !isLast; // unmute last video
+    video.muted = !isLast;
     video.load();
     video.play();
 
@@ -53,10 +53,8 @@ export default function VideoSequence({ onFinish }) {
         setIndex((prev) => prev + 1);
         setVisibleWords(0);
       } else {
-        // ⭐ last video finished → show romantic line first
         setShowBackground(true);
-
-        // after pause → show the question
+        // Delay before showing final question
         setTimeout(() => {
           setVisibleWords(0);
           setShowFinalQuestion(true);
@@ -68,8 +66,10 @@ export default function VideoSequence({ onFinish }) {
     return () => video.removeEventListener("ended", handleEnd);
   }, [index, isLast, showBackground]);
 
-  /* ✨ word-by-word reveal */
+  /* ✨ Word-by-word reveal */
   useEffect(() => {
+    if (showExplanation) return;
+
     setVisibleWords(0);
     const interval = setInterval(() => {
       setVisibleWords((prev) => {
@@ -80,25 +80,34 @@ export default function VideoSequence({ onFinish }) {
     }, 320);
 
     return () => clearInterval(interval);
-  }, [currentText]);
+  }, [currentText, showExplanation]);
 
-  /* ⏭️ skip */
+  /* ⏭️ Skip button */
   const handleSkip = () => {
     setIndex(videos.length - 1);
     setShowBackground(true);
     setShowFinalQuestion(true);
+    setShowExplanation(false);
+  };
+
+  /* 💌 Button click wrapper to show Bye after option */
+  const handleOptionClick = (option) => {
+    onFinish(option);
+    setShowBye(true);
   };
 
   return (
     <div className={`video-screen ${showBackground ? "show-bg" : ""}`}>
+      <audio ref={musicRef} src="/music/soft.mp3" loop />
 
+      {/* Skip button */}
       {!showBackground && (
         <button className="skip-btn" onClick={handleSkip}>
           Skip
         </button>
       )}
 
-      {/* 🎥 VIDEO */}
+      {/* 🎥 Video */}
       {!showBackground && (
         <video
           ref={videoRef}
@@ -109,21 +118,63 @@ export default function VideoSequence({ onFinish }) {
         />
       )}
 
-      {/* 🩷 TEXT */}
+      {/* 🩷 Text content */}
       <div className="video-text">
-        <h1>
-          {words.slice(0, visibleWords).map((word, i) => (
-            <span key={i} className="word">
-              {word}&nbsp;
-            </span>
-          ))}
-        </h1>
+        {/* ❓ Final question text */}
+        {!showExplanation && (
+          <h1 className="final-question">
+            {words.slice(0, visibleWords).map((word, i) => {
+              const isValentine = word.toLowerCase().includes("valentine");
+              return (
+                <span
+                  key={i}
+                  className={`word ${isValentine ? "valentine-word" : ""}`}
+                  style={{ animationDelay: isValentine ? "0.6s" : "0s" }}
+                >
+                  {word}&nbsp;
+                </span>
+              );
+            })}
+          </h1>
+        )}
 
-        {/* 💖 Buttons only with final question */}
-        {showFinalQuestion && (
+        {/* 🔘 Options */}
+        {showFinalQuestion && !showExplanation && (
           <div className="buttons">
-            <button onClick={() => onFinish("yes")}>Yes 💗</button>
-            <button onClick={() => onFinish("talk")}>Let’s talk 🤍</button>
+            <button onClick={() => handleOptionClick("probably")}>
+              Probably yes 💗
+            </button>
+            <button onClick={() => handleOptionClick("think")}>
+              Let me think about it 🤍
+            </button>
+            <button onClick={() => handleOptionClick("no")}>
+              I think it’s better we don’t.
+            </button>
+            <button
+              className="explain-btn"
+              onClick={() => setShowExplanation(true)}
+            >
+              Kya matlab iss sab ka sameer?
+            </button>
+          </div>
+        )}
+
+        {/* ❤️ Explanation text */}
+        {showExplanation && (
+          <h1 className="final-line">
+            {explanationText.split("\n").map((line, i) => (
+              <span key={i}>
+                {line}
+                <br />
+              </span>
+            ))}
+          </h1>
+        )}
+
+        {/* 💌 Bye text */}
+        {showBye && (
+          <div className="bye-text">
+            Bye 💌
           </div>
         )}
       </div>

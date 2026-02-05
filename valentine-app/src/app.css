@@ -111,8 +111,54 @@ button {
 }
 
 .buttons button {
-  margin: 10px;
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.45);
+  padding: 10px 22px;
+  border-radius: 26px;
+  font-size: 1rem;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+
+  text-shadow:
+    0 0 6px rgba(255,255,255,0.6),
+    0 0 12px rgba(255,255,255,0.4);
+
+  animation: softGlow 3.5s ease-in-out infinite;
 }
+
+@keyframes softGlow {
+  0% {
+    text-shadow:
+      0 0 4px rgba(255,255,255,0.4),
+      0 0 8px rgba(255,255,255,0.25);
+    box-shadow: 0 0 8px rgba(255,255,255,0.15);
+  }
+
+  50% {
+    text-shadow:
+      0 0 10px rgba(255,255,255,0.9),
+      0 0 20px rgba(255,255,255,0.6);
+    box-shadow: 0 0 16px rgba(255,255,255,0.35);
+  }
+
+  100% {
+    text-shadow:
+      0 0 4px rgba(255,255,255,0.4),
+      0 0 8px rgba(255,255,255,0.25);
+    box-shadow: 0 0 8px rgba(255,255,255,0.15);
+  }
+}
+
+.buttons button:hover {
+  animation-play-state: paused;
+  background: rgba(255,255,255,0.08);
+  box-shadow:
+    0 0 18px rgba(255,255,255,0.55),
+    0 0 30px rgba(255,255,255,0.35);
+}
+
 
 /* 3D HEART BUBBLE */
 .heart-3d {
@@ -526,4 +572,177 @@ button {
 .final h1 {
   color: #ffffff;
   text-shadow: 0 3px 12px rgba(0, 0, 0, 0.7);
+}
+
+.explain-btn {
+  margin-top: 30px;
+  padding: 10px 22px;
+  border-radius: 24px;
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.6);
+  font-size: 0.95rem;
+  cursor: pointer;
+  opacity: 0.85;
+  animation-duration: 4.5s;
+}
+
+.explain-btn:hover {
+  opacity: 1;
+  background: rgba(255,255,255,0.12);
+}
+
+.final-line {
+  max-width: 700px;
+  line-height: 1.6;
+  font-size: 1.4rem;
+  color: #ffffff;
+  text-shadow: 0 3px 12px rgba(0,0,0,0.6);
+}
+
+/* =========================
+   FINAL QUESTION STYLING
+   ========================= */
+
+   .final-question {
+    text-align: center;
+    line-height: 1.4;
+  }
+  
+  /* Normal typed words */
+  .final-question .word {
+    opacity: 0;
+    animation: wordFade 0.6s ease forwards;
+    display: inline-block;
+  }
+  
+  /* Line break */
+  .final-question .break {
+    display: block;
+    height: 14px;
+  }
+  
+  /* 💖 VALENTINE WORD (SPECIAL ENTRY) */
+  .valentine-word {
+    display: inline-block;
+    margin-top: 14px;
+  
+    font-size: 3.2rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+  
+    color: #ff6fae;
+  
+    opacity: 0;
+    transform: scale(0.9);
+  
+    animation:
+      valentineAppear 1.2s ease forwards,
+      valentineGlow 3.5s ease-in-out infinite;
+  
+    animation-delay: 1.6s; /* ⏳ comes AFTER whole sentence */
+  }
+  
+  /* Valentine entrance */
+  @keyframes valentineAppear {
+    from {
+      opacity: 0;
+      transform: scale(0.9) translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  
+  /* Romantic glow pulse */
+  @keyframes valentineGlow {
+    0% {
+      text-shadow:
+        0 0 8px rgba(255,111,174,0.5),
+        0 0 18px rgba(255,111,174,0.4);
+    }
+    50% {
+      text-shadow:
+        0 0 20px rgba(255,111,174,1),
+        0 0 40px rgba(255,111,174,0.9);
+    }
+    100% {
+      text-shadow:
+        0 0 8px rgba(255,111,174,0.5),
+        0 0 18px rgba(255,111,174,0.4);
+    }
+  }
+  
+  /* =========================
+   FINAL ANSWER TEXT ANIMATION
+   ========================= */
+
+.after-text {
+  text-align: center;
+  max-width: 85%;
+}
+
+/* wrapper animation */
+.after-text.reveal {
+  animation: finalContainerFade 1.4s ease forwards;
+}
+
+/* main text */
+.after-text.reveal h1 {
+  opacity: 0;
+  color: #ffffff;
+  font-weight: 500;
+  line-height: 1.6;
+
+  animation:
+    finalTextReveal 1.8s ease forwards,
+    softWhiteGlow 4.5s ease-in-out infinite;
+
+  animation-delay: 0.3s;
+}
+
+/* container entrance */
+@keyframes finalContainerFade {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* text reveal */
+@keyframes finalTextReveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* 🤍 romantic white glow */
+@keyframes softWhiteGlow {
+  0% {
+    text-shadow:
+      0 0 6px rgba(255,255,255,0.35),
+      0 0 14px rgba(255,255,255,0.25);
+  }
+  50% {
+    text-shadow:
+      0 0 18px rgba(255,255,255,0.95),
+      0 0 36px rgba(255,255,255,0.75);
+  }
+  100% {
+    text-shadow:
+      0 0 6px rgba(255,255,255,0.35),
+      0 0 14px rgba(255,255,255,0.25);
+  }
 }
