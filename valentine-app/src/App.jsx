@@ -5,7 +5,7 @@ import HeartBubble from "./components/effects/HeartBubble";
 import SlidePage from "./components/slideshow/SlidePage";
 import VideoSequence from "./components/VideoSequence";
 
-import "./App.css";
+import "./app.css";
 
 export default function App() {
   const [step, setStep] = useState(1);
