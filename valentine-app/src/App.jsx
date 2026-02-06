@@ -27,6 +27,26 @@ export default function App() {
     setStep(2);
   };
 
+  // ✅ RESTART APP
+  const restartApp = () => {
+    // Stop music
+    if (musicRef.current) {
+      musicRef.current.pause();
+      musicRef.current.currentTime = 0;
+    }
+
+    // Reset state
+    setAnswer(null);
+
+    // Temporarily reset step to 0 to fully remount Step 1
+    setStep(0);
+
+    // Small delay to ensure remount
+    setTimeout(() => {
+      setStep(1);
+    }, 50);
+  };
+
   return (
     <div
       className={`app ${
@@ -49,6 +69,7 @@ export default function App() {
         {/* 🎥 STEP 3 */}
         {step === 3 && (
           <VideoSequence
+            key={step} // forces remount on restart
             onFinish={(res) => {
               setAnswer(res);
               setStep(4);
@@ -90,6 +111,11 @@ export default function App() {
                 but I would have been the one who chose you every day.
               </h1>
             )}
+
+            {/* ✅ EXIT & RESTART BUTTON */}
+            <button className="exit-btn" onClick={restartApp}>
+              Exit & Restart
+            </button>
           </div>
         )}
       </div>

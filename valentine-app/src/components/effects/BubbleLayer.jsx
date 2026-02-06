@@ -78,22 +78,19 @@ export default function BubbleLayer() {
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           if (dist < b1.radius + b2.radius) {
-            // elastic collision with slight speed boost
             const angle = Math.atan2(dy, dx);
             const speed1 = Math.sqrt(b1.vx ** 2 + b1.vy ** 2);
             const speed2 = Math.sqrt(b2.vx ** 2 + b2.vy ** 2);
-
-            const vx1 = speed2 * Math.cos(angle) * 1.05;
-            const vy1 = speed2 * Math.sin(angle) * 1.05;
-            const vx2 = speed1 * Math.cos(angle + Math.PI) * 1.05;
-            const vy2 = speed1 * Math.sin(angle + Math.PI) * 1.05;
-
+          
+            const vx1 = speed2 * Math.cos(angle);
+            const vy1 = speed2 * Math.sin(angle);
+            const vx2 = speed1 * Math.cos(angle + Math.PI);
+            const vy2 = speed1 * Math.sin(angle + Math.PI);
+          
             b1.vx = vx1;
             b1.vy = vy1;
             b2.vx = vx2;
             b2.vy = vy2;
-
-            // ⚡ NO SHRINK! radius remains the same
           }
         }
       }

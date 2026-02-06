@@ -33,7 +33,7 @@ html, body, #root {
 
 /* BACKGROUND IMAGES */
 .bg-before {
-  background-image: url("./assets/bg-before.jpg");
+  background-image: url("./assets/bg--before.jpg");
 }
 
 .bg-after {
@@ -745,4 +745,26 @@ button {
       0 0 6px rgba(255,255,255,0.35),
       0 0 14px rgba(255,255,255,0.25);
   }
+}
+
+.exit-btn {
+  margin-top: 30px;
+  padding: 12px 28px;
+  border-radius: 28px;
+  border: 1px solid rgba(255,255,255,0.6);
+  background: transparent;
+  color: #ff6fae;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-block;
+  text-align: center;
+  animation: softGlow 3s ease-in-out infinite;
+  transition: 0.3s ease;
+}
+
+.exit-btn:hover {
+  background: rgba(255,111,174,0.15);
+  box-shadow: 0 0 20px rgba(255,111,174,0.55);
+  animation-play-state: paused;
 }

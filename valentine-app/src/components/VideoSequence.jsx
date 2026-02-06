@@ -13,6 +13,18 @@ const videos = [
   },
 ];
 
+function DelayedOptions({ children, delay = 1200 }) {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShow(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
+  if (!show) return null;
+  return children;
+}
+
 export default function VideoSequence({ onFinish }) {
   const videoRef = useRef(null);
   const musicRef = useRef(null);
@@ -21,13 +33,18 @@ export default function VideoSequence({ onFinish }) {
   const [visibleWords, setVisibleWords] = useState(0);
   const [showBackground, setShowBackground] = useState(false);
   const [showFinalQuestion, setShowFinalQuestion] = useState(false);
+  const [questionComplete, setQuestionComplete] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
   const [showBye, setShowBye] = useState(false);
 
   const isLast = index === videos.length - 1;
 
   const explanationText =
-    "Matlab bas itna hi… I never knew how to say this without my voice shaking. So I chose silence, screens, and a little courage. No expectations. No pressure. Just something I needed you to know.";
+    "Matlab bas itna hi… I never knew how to say this without my voice shaking. " +
+    "So I chose silence, screens, and a little courage. " +
+    "No expectations. No pressure. " +
+    "Just something I needed you to know. " +
+    "These are all the special moments and memories I’ve carried with me.";
 
   const currentText = showExplanation
     ? explanationText
@@ -54,7 +71,6 @@ export default function VideoSequence({ onFinish }) {
         setVisibleWords(0);
       } else {
         setShowBackground(true);
-        // Delay before showing final question
         setTimeout(() => {
           setVisibleWords(0);
           setShowFinalQuestion(true);
@@ -68,19 +84,24 @@ export default function VideoSequence({ onFinish }) {
 
   /* ✨ Word-by-word reveal */
   useEffect(() => {
-    if (showExplanation) return;
+    if (!showFinalQuestion && !(!showExplanation && !showFinalQuestion)) return;
 
     setVisibleWords(0);
+    setQuestionComplete(false);
+
     const interval = setInterval(() => {
       setVisibleWords((prev) => {
         if (prev < words.length) return prev + 1;
-        clearInterval(interval);
-        return prev;
+        else {
+          clearInterval(interval);
+          setQuestionComplete(true);
+          return prev;
+        }
       });
     }, 320);
 
     return () => clearInterval(interval);
-  }, [currentText, showExplanation]);
+  }, [currentText, showExplanation, showFinalQuestion]);
 
   /* ⏭️ Skip button */
   const handleSkip = () => {
@@ -90,7 +111,7 @@ export default function VideoSequence({ onFinish }) {
     setShowExplanation(false);
   };
 
-  /* 💌 Button click wrapper to show Bye after option */
+  /* 💌 Button click wrapper */
   const handleOptionClick = (option) => {
     onFinish(option);
     setShowBye(true);
@@ -100,14 +121,12 @@ export default function VideoSequence({ onFinish }) {
     <div className={`video-screen ${showBackground ? "show-bg" : ""}`}>
       <audio ref={musicRef} src="/music/soft.mp3" loop />
 
-      {/* Skip button */}
       {!showBackground && (
         <button className="skip-btn" onClick={handleSkip}>
           Skip
         </button>
       )}
 
-      {/* 🎥 Video */}
       {!showBackground && (
         <video
           ref={videoRef}
@@ -118,10 +137,24 @@ export default function VideoSequence({ onFinish }) {
         />
       )}
 
-      {/* 🩷 Text content */}
       <div className="video-text">
-        {/* ❓ Final question text */}
-        {!showExplanation && (
+        {/* VIDEO TEXT: word-by-word glowing animation */}
+        {!showExplanation && !showFinalQuestion && (
+          <h1 className="final-question">
+            {words.slice(0, visibleWords).map((word, i) => (
+              <span
+                key={i}
+                className="word"
+                style={{ animationDelay: `${i * 0.1}s` }}
+              >
+                {word}&nbsp;
+              </span>
+            ))}
+          </h1>
+        )}
+
+        {/* FINAL QUESTION */}
+        {!showExplanation && showFinalQuestion && (
           <h1 className="final-question">
             {words.slice(0, visibleWords).map((word, i) => {
               const isValentine = word.toLowerCase().includes("valentine");
@@ -139,44 +172,45 @@ export default function VideoSequence({ onFinish }) {
         )}
 
         {/* 🔘 Options */}
-        {showFinalQuestion && !showExplanation && (
-          <div className="buttons">
-            <button onClick={() => handleOptionClick("probably")}>
-              Probably yes 💗
-            </button>
-            <button onClick={() => handleOptionClick("think")}>
-              Let me think about it 🤍
-            </button>
-            <button onClick={() => handleOptionClick("no")}>
-              I think it’s better we don’t.
-            </button>
-            <button
-              className="explain-btn"
-              onClick={() => setShowExplanation(true)}
-            >
-              Kya matlab iss sab ka sameer?
-            </button>
-          </div>
+        {showFinalQuestion && questionComplete && !showExplanation && (
+          <DelayedOptions delay={1200}>
+            <div className="buttons">
+              <button onClick={() => handleOptionClick("probably")}>
+                Probably yes 💗
+              </button>
+              <button onClick={() => handleOptionClick("think")}>
+                Let me think about it 🤍
+              </button>
+              <button onClick={() => handleOptionClick("no")}>
+                I think it’s better we don’t.
+              </button>
+              <button
+                className="explain-btn"
+                onClick={() => setShowExplanation(true)}
+              >
+                Kya matlab iss sab ka sameer?
+              </button>
+            </div>
+          </DelayedOptions>
         )}
 
-        {/* ❤️ Explanation text */}
+        {/* ❤️ Explanation text – glow like final answer */}
         {showExplanation && (
-          <h1 className="final-line">
-            {explanationText.split("\n").map((line, i) => (
-              <span key={i}>
-                {line}
-                <br />
-              </span>
-            ))}
-          </h1>
+          <div className="after-text reveal">
+            <h1>
+              {explanationText.split(". ").map((line, i) => (
+                <span key={i}>
+                  {line.trim()}
+                  {i < explanationText.split(". ").length - 1 ? ". " : ""}
+                  <br />
+                </span>
+              ))}
+            </h1>
+          </div>
         )}
 
         {/* 💌 Bye text */}
-        {showBye && (
-          <div className="bye-text">
-            Bye 💌
-          </div>
-        )}
+        {showBye && <div className="bye-text">Bye 💌</div>}
       </div>
     </div>
   );
