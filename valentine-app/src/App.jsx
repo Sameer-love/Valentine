@@ -10,6 +10,7 @@ import "./App.css";
 export default function App() {
   const [step, setStep] = useState(1);
   const [answer, setAnswer] = useState(null);
+  const [showVideoExplanation, setShowVideoExplanation] = useState(false); // track explanation in VideoSequence
 
   const musicRef = useRef(null);
 
@@ -35,16 +36,12 @@ export default function App() {
       musicRef.current.currentTime = 0;
     }
 
-    // Reset state
+    // Reset states
     setAnswer(null);
+    setShowVideoExplanation(false);
 
-    // Temporarily reset step to 0 to fully remount Step 1
-    setStep(0);
-
-    // Small delay to ensure remount
-    setTimeout(() => {
-      setStep(1);
-    }, 50);
+    // Restart steps
+    setStep(1);
   };
 
   return (
@@ -69,16 +66,22 @@ export default function App() {
         {/* 🎥 STEP 3 */}
         {step === 3 && (
           <VideoSequence
-            key={step} // forces remount on restart
-            onFinish={(res) => {
-              setAnswer(res);
-              setStep(4);
+            key={step} // force remount on restart
+            onFinish={(res, isExplanation) => {
+              if (isExplanation) {
+                setShowVideoExplanation(true);
+              } else {
+                setAnswer(res);
+                setStep(4);
+                setShowVideoExplanation(false);
+              }
             }}
+            onRestart={restartApp} // pass restart function to VideoSequence
           />
         )}
 
         {/* ✨ STEP 4 – FINAL TEXT (animated + glowing) */}
-        {step === 4 && (
+        {step === 4 && !showVideoExplanation && (
           <div className="after-text reveal">
             {answer === "probably" && (
               <h1>

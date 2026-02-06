@@ -13,21 +13,8 @@ const videos = [
   },
 ];
 
-function DelayedOptions({ children, delay = 1200 }) {
-  const [show, setShow] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setShow(true), delay);
-    return () => clearTimeout(timer);
-  }, [delay]);
-
-  if (!show) return null;
-  return children;
-}
-
-export default function VideoSequence({ onFinish }) {
+export default function VideoSequence({ onFinish, onRestart }) {
   const videoRef = useRef(null);
-  const musicRef = useRef(null);
 
   const [index, setIndex] = useState(0);
   const [visibleWords, setVisibleWords] = useState(0);
@@ -84,24 +71,20 @@ export default function VideoSequence({ onFinish }) {
 
   /* ✨ Word-by-word reveal */
   useEffect(() => {
-    if (!showFinalQuestion && !(!showExplanation && !showFinalQuestion)) return;
-
     setVisibleWords(0);
     setQuestionComplete(false);
 
     const interval = setInterval(() => {
       setVisibleWords((prev) => {
         if (prev < words.length) return prev + 1;
-        else {
-          clearInterval(interval);
-          setQuestionComplete(true);
-          return prev;
-        }
+        clearInterval(interval);
+        setQuestionComplete(true);
+        return prev;
       });
     }, 320);
 
     return () => clearInterval(interval);
-  }, [currentText, showExplanation, showFinalQuestion]);
+  }, [currentText]);
 
   /* ⏭️ Skip button */
   const handleSkip = () => {
@@ -111,16 +94,20 @@ export default function VideoSequence({ onFinish }) {
     setShowExplanation(false);
   };
 
-  /* 💌 Button click wrapper */
+  /* 💌 Option click */
   const handleOptionClick = (option) => {
-    onFinish(option);
+    onFinish(option, false);
     setShowBye(true);
+  };
+
+  /* 💬 Explanation click */
+  const handleExplanationClick = () => {
+    setShowExplanation(true);
+    onFinish(null, true); // tell parent it's showing explanation
   };
 
   return (
     <div className={`video-screen ${showBackground ? "show-bg" : ""}`}>
-      <audio ref={musicRef} src="/music/soft.mp3" loop />
-
       {!showBackground && (
         <button className="skip-btn" onClick={handleSkip}>
           Skip
@@ -138,14 +125,25 @@ export default function VideoSequence({ onFinish }) {
       )}
 
       <div className="video-text">
-        {/* VIDEO TEXT: word-by-word glowing animation */}
+        {/* Video text */}
         {!showExplanation && !showFinalQuestion && (
+          <h1 className="final-question">
+            {words.slice(0, visibleWords).map((word, i) => (
+              <span key={i} className="word" style={{ animationDelay: `${i * 0.1}s` }}>
+                {word}&nbsp;
+              </span>
+            ))}
+          </h1>
+        )}
+
+        {/* Final Question */}
+        {!showExplanation && showFinalQuestion && (
           <h1 className="final-question">
             {words.slice(0, visibleWords).map((word, i) => (
               <span
                 key={i}
-                className="word"
-                style={{ animationDelay: `${i * 0.1}s` }}
+                className={`word ${word.toLowerCase().includes("valentine") ? "valentine-word" : ""}`}
+                style={{ animationDelay: i * 0.1 + "s" }}
               >
                 {word}&nbsp;
               </span>
@@ -153,48 +151,25 @@ export default function VideoSequence({ onFinish }) {
           </h1>
         )}
 
-        {/* FINAL QUESTION */}
-        {!showExplanation && showFinalQuestion && (
-          <h1 className="final-question">
-            {words.slice(0, visibleWords).map((word, i) => {
-              const isValentine = word.toLowerCase().includes("valentine");
-              return (
-                <span
-                  key={i}
-                  className={`word ${isValentine ? "valentine-word" : ""}`}
-                  style={{ animationDelay: isValentine ? "0.6s" : "0s" }}
-                >
-                  {word}&nbsp;
-                </span>
-              );
-            })}
-          </h1>
-        )}
-
-        {/* 🔘 Options */}
+        {/* Options */}
         {showFinalQuestion && questionComplete && !showExplanation && (
-          <DelayedOptions delay={1200}>
-            <div className="buttons">
-              <button onClick={() => handleOptionClick("probably")}>
-                Probably yes 💗
-              </button>
-              <button onClick={() => handleOptionClick("think")}>
-                Let me think about it 🤍
-              </button>
-              <button onClick={() => handleOptionClick("no")}>
-                I think it’s better we don’t.
-              </button>
-              <button
-                className="explain-btn"
-                onClick={() => setShowExplanation(true)}
-              >
-                Kya matlab iss sab ka sameer?
-              </button>
-            </div>
-          </DelayedOptions>
+          <div className="buttons">
+            <button onClick={() => handleOptionClick("probably")}>
+              Probably yes 💗
+            </button>
+            <button onClick={() => handleOptionClick("think")}>
+              Let me think about it 🤍
+            </button>
+            <button onClick={() => handleOptionClick("no")}>
+              I think it’s better we don’t.
+            </button>
+            <button className="explain-btn" onClick={handleExplanationClick}>
+              Kya matlab iss sab ka sameer?
+            </button>
+          </div>
         )}
 
-        {/* ❤️ Explanation text – glow like final answer */}
+        {/* Explanation text */}
         {showExplanation && (
           <div className="after-text reveal">
             <h1>
@@ -206,10 +181,15 @@ export default function VideoSequence({ onFinish }) {
                 </span>
               ))}
             </h1>
+
+            {/* ✅ EXIT & RESTART BUTTON */}
+            <button className="exit-btn" onClick={onRestart}>
+              Exit & Restart
+            </button>
           </div>
         )}
 
-        {/* 💌 Bye text */}
+        {/* Bye text */}
         {showBye && <div className="bye-text">Bye 💌</div>}
       </div>
     </div>
