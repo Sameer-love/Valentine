@@ -415,7 +415,7 @@ button {
   background-image: url("/pics/frame-bg.jpg"); /* optional */
   background-size: cover;
   background-position: center;
-  filter: brightness(0.75) contrast(0.55) blur(0.4px);
+  filter: brightness(0.75) contrast(0.55) blur(0.3px);
   border-radius: 14px;
   padding: 10px;
   box-shadow: 0 15px 35px rgba(0,0,0,0.45);

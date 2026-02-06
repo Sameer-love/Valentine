@@ -21,6 +21,7 @@ export default function VideoSequence({ onFinish, onRestart }) {
   const [showBackground, setShowBackground] = useState(false);
   const [showFinalQuestion, setShowFinalQuestion] = useState(false);
   const [questionComplete, setQuestionComplete] = useState(false);
+  const [showOptions, setShowOptions] = useState(false); // ✅ NEW
   const [showExplanation, setShowExplanation] = useState(false);
   const [showBye, setShowBye] = useState(false);
 
@@ -73,6 +74,7 @@ export default function VideoSequence({ onFinish, onRestart }) {
   useEffect(() => {
     setVisibleWords(0);
     setQuestionComplete(false);
+    setShowOptions(false); // ✅ reset options
 
     const interval = setInterval(() => {
       setVisibleWords((prev) => {
@@ -85,6 +87,17 @@ export default function VideoSequence({ onFinish, onRestart }) {
 
     return () => clearInterval(interval);
   }, [currentText]);
+
+  /* ⏳ Delay options AFTER question completes */
+  useEffect(() => {
+    if (showFinalQuestion && questionComplete && !showExplanation) {
+      const timer = setTimeout(() => {
+        setShowOptions(true);
+      }, 2000); // ✅ 2 sec delay
+
+      return () => clearTimeout(timer);
+    }
+  }, [showFinalQuestion, questionComplete, showExplanation]);
 
   /* ⏭️ Skip button */
   const handleSkip = () => {
@@ -103,7 +116,7 @@ export default function VideoSequence({ onFinish, onRestart }) {
   /* 💬 Explanation click */
   const handleExplanationClick = () => {
     setShowExplanation(true);
-    onFinish(null, true); // tell parent it's showing explanation
+    onFinish(null, true);
   };
 
   return (
@@ -151,8 +164,8 @@ export default function VideoSequence({ onFinish, onRestart }) {
           </h1>
         )}
 
-        {/* Options */}
-        {showFinalQuestion && questionComplete && !showExplanation && (
+        {/* ❤️ Options AFTER delay */}
+        {showOptions && !showExplanation && (
           <div className="buttons">
             <button onClick={() => handleOptionClick("probably")}>
               Probably yes 💗
@@ -169,7 +182,7 @@ export default function VideoSequence({ onFinish, onRestart }) {
           </div>
         )}
 
-        {/* Explanation text */}
+        {/* Explanation */}
         {showExplanation && (
           <div className="after-text reveal">
             <h1>
@@ -182,14 +195,13 @@ export default function VideoSequence({ onFinish, onRestart }) {
               ))}
             </h1>
 
-            {/* ✅ EXIT & RESTART BUTTON */}
             <button className="exit-btn" onClick={onRestart}>
               Exit & Restart
             </button>
           </div>
         )}
 
-        {/* Bye text */}
+        {/* Bye */}
         {showBye && <div className="bye-text">Bye 💌</div>}
       </div>
     </div>
